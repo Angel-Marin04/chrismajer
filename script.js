@@ -4,18 +4,29 @@
 const hamburger = document.querySelector('.hamburger');
 const navMenu = document.querySelector('.nav-menu');
 
-if (hamburger) {
-    hamburger.addEventListener('click', () => {
+if (hamburger && navMenu) {
+    hamburger.addEventListener('click', (e) => {
+        e.stopPropagation();
         hamburger.classList.toggle('active');
         navMenu.classList.toggle('active');
+        console.log('Menu toggled. Active:', navMenu.classList.contains('active'));
     });
 
     // Close menu when a link is clicked
     document.querySelectorAll('.nav-menu a').forEach(link => {
-        link.addEventListener('click', () => {
+        link.addEventListener('click', (e) => {
             hamburger.classList.remove('active');
             navMenu.classList.remove('active');
+            console.log('Menu closed from link click');
         });
+    });
+
+    // Close menu when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.navbar')) {
+            hamburger.classList.remove('active');
+            navMenu.classList.remove('active');
+        }
     });
 }
 
@@ -60,37 +71,35 @@ window.addEventListener('scroll', () => {
 // ===========================
 // FORM VALIDATION & SUBMISSION
 // ===========================
-const contactForm = document.getElementById('contactForm');
+const contactForms = document.querySelectorAll('#contactForm');
 
-if (contactForm) {
-    contactForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        
-        // Get form values
-        const firstName = document.getElementById('firstName').value.trim();
-        const lastName = document.getElementById('lastName').value.trim();
-        const email = document.getElementById('email').value.trim();
-        const phone = document.getElementById('phone').value.trim();
-        const message = document.getElementById('message').value.trim();
+contactForms.forEach(contactForm => {
+    contactForm.addEventListener('submit', function(e) {
+        const firstName = this.querySelector('#firstName')?.value.trim() || '';
+        const lastName = this.querySelector('#lastName')?.value.trim() || '';
+        const email = this.querySelector('#email')?.value.trim() || '';
+        const phone = this.querySelector('#phone')?.value.trim() || '';
+        const message = this.querySelector('#message')?.value.trim() || '';
         
         // Validation
         if (!firstName || !lastName || !email || !phone || !message) {
-            alert('Please fill in all required fields');
-            return;
+            e.preventDefault();
+            alert('Por favor completa todos los campos requeridos (*)');
+            return false;
         }
         
         // Email validation
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
-            alert('Please enter a valid email address');
-            return;
+            e.preventDefault();
+            alert('Por favor ingresa un email válido');
+            return false;
         }
         
-        // Show success message
-        alert('Thank you for your booking request! We will contact you within 24 hours.');
-        contactForm.reset();
+        // Allow form submission to Formspree
+        return true;
     });
-}
+});
 
 // ===========================
 // NAVBAR SCROLL EFFECT
